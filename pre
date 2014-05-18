@@ -1,0 +1,2 @@
+#!/bin/bash
+/usr/sbin/lvm_snap.sh create LVNAME 4 5=home
