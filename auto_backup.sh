@@ -15,12 +15,14 @@ for i in "${profile[@]}"
 	echo "" >> /root/auto_backup_logs/auto_backup.log
 	echo "STARTING Backup for Profile $i" >> /root/auto_backup_logs/auto_backup.log
         time=`{ time duply $i backup >> /root/auto_backup_logs/log_${i}.log; } 2>&1 | awk '/real/ { print $2 }'`
-	grep -q "Finished state OK" /root/auto_backup_logs/log_${i}.log
-        if [ $? -ne 0 ]; then
+	grep -q "Finished state FAILED" /root/auto_backup_logs/log_${i}.log
+        if [ $? == 0 ]; then
                 echo "  FAIL: Check /root/auto_backup_logs/fail/log_${i}_${TODAY}.log" >> /root/auto_backup_logs/auto_backup.log
 		mv /root/auto_backup_logs/log_${i}.log /root/auto_backup_logs/fail/log_${i}_${TODAY}.log
 	else
 		echo "  Done: $time" >> /root/auto_backup_logs/auto_backup.log
+		echo "  .. purging old data" >> /root/auto_backup_logs/auto_backup.log
+		duply $i purge-full --force 1> /dev/null
         fi
 done
 echo "------------------------------- - - - -" >> /root/auto_backup_logs/auto_backup.log
